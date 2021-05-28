@@ -1,7 +1,7 @@
 import torch
-from .search_cells import NAS201SearchCell as SearchCell
-from .search_model import TinyNetwork as TinyNetwork
-from .genotypes        import Structure
+from search_cells import NAS201SearchCell as SearchCell
+from search_model import TinyNetwork as TinyNetwork
+from genotypes        import Structure
 
 
 class TinyNetworkDartsProj(TinyNetwork):

@@ -4,8 +4,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 from copy import deepcopy
 import sys
-sys.path.insert(0, '../')
-from nasbench201.cell_operations import OPS
+sys.path.insert(0, './')
+from cell_operations import OPS
 
 
 # This module is used for NAS-Bench-201, represents a small search space with a complete DAG

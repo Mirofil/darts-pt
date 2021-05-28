@@ -2,9 +2,9 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from copy import deepcopy
-from .cell_operations import ResNetBasicblock
-from .search_cells     import NAS201SearchCell as SearchCell
-from .genotypes        import Structure
+from cell_operations import ResNetBasicblock
+from search_cells     import NAS201SearchCell as SearchCell
+from genotypes        import Structure
 from torch.autograd import Variable
 
 class TinyNetwork(nn.Module):
