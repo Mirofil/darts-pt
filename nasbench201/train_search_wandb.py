@@ -74,6 +74,8 @@ parser.add_argument('--merge_train_val', type=lambda x: False if x in ["False", 
 
 args = parser.parse_args()
 
+args.expid_tag = f"seed{args.seed}"
+args.resume_expid = f"seed{args.seed}"
 
 #### macros
 

@@ -6,7 +6,8 @@ sys.path.insert(0, '../')
 import nasbench201.utils as ig_utils
 import logging
 import torch.utils
-
+from nats_bench   import create
+import wandb
 from nas_201_api import NASBench201API as API
 
 torch.set_printoptions(precision=4, sci_mode=False)
@@ -56,7 +57,8 @@ def pt_project(train_queue, valid_queue, model, architect, criterion, optimizer,
     
     ## query
     if not args.fast:
-        api = API('../data/NAS-Bench-201-v1_0-e61699.pth')
+        # api = API('../data/NAS-Bench-201-v1_0-e61699.pth')
+        api = create(None, 'topology', fast_mode=True, verbose=False)
 
     model.train()
     model.printing(logging)
@@ -68,6 +70,8 @@ def pt_project(train_queue, valid_queue, model, architect, criterion, optimizer,
     valid_acc, valid_obj = infer(valid_queue, model, criterion, log=False)
     logging.info('valid_acc  %f', valid_acc)
     logging.info('valid_loss %f', valid_obj)
+    
+    wandb.log({"initial_proj": {"train_acc":train_acc, "train_loss":train_obj, "valid_acc":valid_acc, "valid_loss":valid_obj}})
 
     objs = ig_utils.AvgrageMeter()
     top1 = ig_utils.AvgrageMeter()
@@ -129,9 +133,25 @@ def pt_project(train_queue, valid_queue, model, architect, criterion, optimizer,
         valid_acc, valid_obj = infer(valid_queue, model, criterion, log=False)
         logging.info('valid_acc  %f', valid_acc)
         logging.info('valid_loss %f', valid_obj)
+        
+        wandb.log({"train_proj": {"train_acc":train_acc, "train_loss":train_obj, "valid_acc":valid_acc, "valid_loss":valid_obj}})
+
 
     # nasbench201
     if not args.fast:
-        query(api, model.genotype(), logging)
-
+        cifar10_train, cifar10_test, cifar100_train, cifar100_valid, \
+                cifar100_test, imagenet16_train, imagenet16_valid, imagenet16_test = query(api, model.genotype(), logging)
+        acc_log = {"accuracy": {"train":train_acc, "valid":valid_acc}, "epoch": epoch}
+        loss_log = {"loss": {"train": train_obj, "valid": valid_obj}, "epoch":epoch}
+        true_acc_log = {"search":
+            {"final":
+                {"cifar10":{"train": cifar10_train, "valid":cifar10_test},
+                    "cifar100": {"train":cifar100_train, "valid":cifar100_valid, "test":cifar100_test},
+                    "ImageNet16": {"train": imagenet16_train, "valid": imagenet16_valid, "test": imagenet16_test}
+                    }
+                }, "epoch": epoch
+            }
+        
+        wandb.log({**acc_log, **loss_log, **true_acc_log})
+        
     return
